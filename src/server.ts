@@ -1,5 +1,4 @@
 import express from 'express';
-import fs from 'fs';
 import { Respuesta, videojuego } from './elementos.js';
 import { Add, Remove, Modi, List, Read } from './vgManager.js';
 
