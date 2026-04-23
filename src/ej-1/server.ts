@@ -14,15 +14,14 @@ app.post('/videogames', async (req, res) => {
         return res.status(400).json({ success: false, message: 'El parámetro "user" falta en la url.' });
     }
 
-    try {
-      await Add(user, game);
-      const response: Respuesta = { success: true };
-      res.status(200).json(response);
-    }
-    catch (error) {
-        res.status(500).json({ success: false, message: 'Error al agregar el videojuego.' });
-    }
-
+    
+      Add(user, game).then(() => {
+        const response: Respuesta = { success: true };
+        res.status(200).json(response);
+      })
+      .catch((error) => {
+            res.status(500).json({ success: false, message: 'Error al agregar el videojuego.' });
+      });
 });
 
 app.delete('/videogames', async (req, res) => {
@@ -37,13 +36,13 @@ app.delete('/videogames', async (req, res) => {
         return res.status(400).json({ success: false, message: 'El parámetro "id" no es un número válido.' });
     }
 
-    try {
-        await Remove(user, id);
+    Remove(user, id).then(() => {
         const response: Respuesta = { success: true };
         res.status(200).json(response);
-    } catch (error) {
-        res.status(500).json({ success: false, message: 'Error al eliminar el videojuego.' });
-    }
+      })
+      .catch((error) => {
+            res.status(500).json({ success: false, message: 'Error al eliminar el videojuego.' });
+      });
 });
 
 app.put('/videogames', async (req, res) => {
@@ -54,13 +53,13 @@ app.put('/videogames', async (req, res) => {
         return res.status(400).json({ success: false, message: 'El parámetro "user" falta en la url.' });
     }
 
-    try {
-        await Modi(user, game);
+    Modi(user, game).then(() => {
         const response: Respuesta = { success: true };
         res.status(200).json(response);
-    } catch (error) {
-        res.status(500).json({ success: false, message: 'Error al modificar el videojuego.' });
-    }
+      })
+      .catch((error) => {
+            res.status(500).json({ success: false, message: 'Error al modificar el videojuego.' });
+      });
 });
 
 app.get('/videogames', async (req, res) => {
@@ -70,20 +69,23 @@ app.get('/videogames', async (req, res) => {
         return res.status(400).json({ success: false, message: 'El parámetro "user" falta en la url.' });
     }
 
-    try {
+    List(user).then((games) => {
         if (req.query.id) {
             const id = parseInt(req.query.id as string);
-            const game = await Read(user, id);
+            const game = games.find((g) => g.id === id);
+            if (!game) {
+                return res.status(404).json({ success: false, message: 'Videojuego no encontrado.' });
+            }
             const response: Respuesta = { success: true, videogames: [game] };
             res.status(200).json(response);
         } else {
-            const games = await List(user);
             const response: Respuesta = { success: true, videogames: games };
             res.status(200).json(response);
         }
-    } catch (error) {
+    })
+    .catch((error) => {
         res.status(500).json({ success: false, message: 'Error al obtener los videojuegos.' });
-    }
+    });
 });
 
 const PORT = 3000;
