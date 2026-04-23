@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { describe, it, expect } from 'vitest';
-import { findCharacter, listEpisodes } from '../src/modi/modi.js'
-import { stado, Episode, Personaje } from '../src/modi/t_i.js'
+import { findCharacter, listEpisodes } from '../src/modi.js'
+import { stado, Episode, Personaje } from '../src/t_i.js'
 
 const API_URL = 'https://rickandmortyapi.com/api/character'
 
