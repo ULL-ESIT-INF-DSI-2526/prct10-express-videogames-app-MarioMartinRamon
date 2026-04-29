@@ -48,3 +48,4 @@ export const findCharacter = (name?: string, status?: stado, species?: string, g
         throw new Error('Error al obtener eps: ' + error.message);
     });
 };
+
