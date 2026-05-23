@@ -1,0 +1,98 @@
+import chalk from "chalk";
+import fs from "fs/promises";
+const getFilePath = (user, id) => `./${user}/${id}.json`;
+const existe = async (path) => {
+    try {
+        await fs.access(path);
+        return true;
+    }
+    catch {
+        return false;
+    }
+};
+const crearCarpetaUsuario = async (user) => {
+    const dirPath = `./${user}`;
+    if (!(await existe(dirPath))) {
+        await fs.mkdir(dirPath, { recursive: true });
+    }
+};
+export const Add = async (user, game) => {
+    await crearCarpetaUsuario(user);
+    const filePath = getFilePath(user, game.id);
+    if (await existe(filePath)) {
+        throw new Error(`El juego "${game.nombre}" ya existe para el usuario "${user}".`);
+    }
+    try {
+        await fs.writeFile(filePath, JSON.stringify(game));
+    }
+    catch (error) {
+        throw new Error(`Error al agregar el juego "${game.nombre}" para el usuario "${user}".`);
+    }
+};
+export const Remove = async (user, id) => {
+    const filePath = getFilePath(user, id);
+    if (!(await existe(filePath))) {
+        throw new Error(`El juego con ID "${id}" no existe para el usuario "${user}".`);
+    }
+    try {
+        await fs.unlink(filePath);
+    }
+    catch (error) {
+        throw new Error(`Error al eliminar el juego con ID "${id}" para el usuario "${user}".`);
+    }
+};
+export const Modi = async (user, game) => {
+    const filePath = getFilePath(user, game.id);
+    if (!(await existe(filePath))) {
+        throw new Error(`El juego "${game.nombre}" no existe para el usuario "${user}".`);
+    }
+    try {
+        await fs.writeFile(filePath, JSON.stringify(game));
+    }
+    catch (error) {
+        throw new Error(`Error al modificar el juego "${game.nombre}" para el usuario "${user}".`);
+    }
+};
+export const List = async (user, games) => {
+    const userDir = `./${user}`;
+    if (!(await existe(userDir))) {
+        console.log(chalk.red(`El usuario "${user}" no tiene juegos registrados.`));
+        return [];
+    }
+    try {
+        const files = await fs.readdir(userDir);
+        const games = [];
+        for (const file of files) {
+            if (file.endsWith(".json")) {
+                const filePath = `${userDir}/${file}`;
+                try {
+                    const gameData = await fs.readFile(filePath, "utf-8");
+                    const game = JSON.parse(gameData);
+                    games.push(game);
+                }
+                catch (error) {
+                    console.log(chalk.red(`Error al leer o parsear el archivo "${file}" para el usuario "${user}".`));
+                }
+            }
+        }
+        return games;
+    }
+    catch (error) {
+        console.log(chalk.red(`Error al leer el directorio del usuario "${user}".`));
+        return [];
+    }
+};
+export const Read = async (user, id, game) => {
+    const filePath = getFilePath(user, id);
+    if (!(await existe(filePath))) {
+        throw new Error(`El juego con ID "${id}" no existe para el usuario "${user}".`);
+    }
+    try {
+        const gameData = await fs.readFile(filePath, "utf-8");
+        return JSON.parse(gameData);
+    }
+    catch (error) {
+        throw new Error(`Error al leer o parsear el juego con ID "${id}" para el usuario "${user}".`);
+    }
+};
+//# sourceMappingURL=vgManager.js.map
